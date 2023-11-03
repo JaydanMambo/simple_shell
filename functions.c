@@ -3,7 +3,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "prototypes.c"
-
 /**
  * parse_input - Splits the input into tokens/arguments
  *
@@ -32,6 +31,7 @@ char **parse_input(char *input)
 		i++;
 	}
 	command[i] = NULL;
+
 	return (command);
 
 }
@@ -40,9 +40,10 @@ char **parse_input(char *input)
  * execute_command - Execute a command and wait for the child process to finish
  *
  * @command: An array of strings containing the command and arguments.
+ * @av: from arguemnts
 */
 
-void execute_command(char **command)
+void execute_command(char **command, char **av)
 {
 	pid_t child_pid;
 	int status;
@@ -51,14 +52,14 @@ void execute_command(char **command)
 
 	if (child_pid == -1)
 	{
-		perror("Fork failed");
+		perror(av[0]);
 		exit(EXIT_FAILURE);
 	}
 	if (child_pid == 0)
 	{
 		if (execve(command[0], command, NULL) == -1)
 		{
-			perror("execve failed");
+			perror(av[0]);
 		}
 	}
 	else

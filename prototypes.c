@@ -7,9 +7,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "functions.c"
+
 
 char **parse_input(char *input);
-void execute_command(char **command);
+void execute_command(char **command, char **av);
 
 #endif /* PROTOTYPES_C */
