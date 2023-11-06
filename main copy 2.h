@@ -4,24 +4,15 @@
 #include <stdbool.h>
 #include "prototypes.c"
 
-/**
- * display_prompt - Display a prompt for input in interactive mode
- * @interactive_mode: Interactive mode flag
-*/
-void display_prompt(bool interactive_mode)
-{
-	if (interactive_mode)
-	{
-		write(STDOUT_FILENO, "($) ", 4);
-	}
-}
 
 /**
  * main - Simple shell program
- * @ac: The argument count
- * @av: The argument vector
- * Return: Always 0 on success
-*/
+ *
+ * @ac: arguments
+ * @av: array of arguments
+ * Return: Always 0.
+ */
+
 int main(int ac, char **av)
 {
 	char *input = NULL;
@@ -30,7 +21,10 @@ int main(int ac, char **av)
 	bool interactive_mode = isatty(STDIN_FILENO);
 
 	(void)ac;
-	display_prompt(interactive_mode);
+	if (interactive_mode)
+	{
+		write(STDOUT_FILENO, "($) ", 4);
+	}
 	while (getline(&input, &input_size, stdin) != -1)
 	{
 		if (feof(stdin))
@@ -41,16 +35,21 @@ int main(int ac, char **av)
 			}
 			break;
 		}
-		if (input[0] == '\n')
-		{
-			display_prompt(interactive_mode);
-			continue;
-		}
 		command = parse_input(input);
 		execute_command(command, av);
-		free(command);
-		display_prompt(interactive_mode);
+		if (!interactive_mode)
+		{
+			free(input);
+			input = NULL;
+			input_size = 0;
+		}
+		if (interactive_mode)
+		{
+			write(STDOUT_FILENO, "($) ", 4);
+		}
 	}
 	free(input);
+	free(command);
 	return (0);
 }
+

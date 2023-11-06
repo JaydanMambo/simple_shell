@@ -9,7 +9,14 @@
 #include <sys/wait.h>
 
 
+/* Custom string functions */
+char *custom_strcpy(char *dest, const char *src);
+char *custom_strcat(char *dest, const char *src);
+int custom_strcmp(const char *s1, const char *s2);
+
+/* Other function prototypes */
 char **parse_input(char *input);
 void execute_command(char **command, char **av);
+
 
 #endif /* PROTOTYPES_C */
