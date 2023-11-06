@@ -31,10 +31,11 @@ int main(int ac, char **av)
 
 	(void)ac;
 	display_prompt(interactive_mode);
-	while (getline(&input, &input_size, stdin) != -1)
+	while (custom_getline(&input, &input_size, STDIN_FILENO) != -1)
 	{
 		if (feof(stdin))
 		{
+			free(input);
 			if (interactive_mode)
 			{
 				write(STDOUT_FILENO, "\n", 1);
@@ -49,6 +50,9 @@ int main(int ac, char **av)
 		command = parse_input(input);
 		execute_command(command, av);
 		free(command);
+		free(input);
+		input = NULL;
+		input_size = 0;
 		display_prompt(interactive_mode);
 	}
 	free(input);

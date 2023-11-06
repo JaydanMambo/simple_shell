@@ -17,6 +17,7 @@ int custom_strcmp(const char *s1, const char *s2);
 /* Other function prototypes */
 char **parse_input(char *input);
 void execute_command(char **command, char **av);
+ssize_t custom_getline(char **lineptr, size_t *n, int fd);
 
 
 #endif /* PROTOTYPES_C */
