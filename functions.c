@@ -23,11 +23,11 @@ char **parse_input(char *input)
 		exit(EXIT_FAILURE);
 	}
 
-	token = strtok(input, "\t\n ");
+	token = custom_strtok(input, "\t\n ");
 	while (token != NULL)
 	{
 		command[i] = token;
-		token = strtok(NULL, "\t\n ");
+		token = custom_strtok(NULL, "\t\n ");
 		i++;
 	}
 	command[i] = NULL;

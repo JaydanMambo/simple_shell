@@ -19,5 +19,8 @@ char **parse_input(char *input);
 void execute_command(char **command, char **av);
 ssize_t custom_getline(char **lineptr, size_t *n, int fd);
 
+/* Custom string tokenizer */
+char *custom_strtok(char *str, const char *delim);
+
 
 #endif /* PROTOTYPES_C */
