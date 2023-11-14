@@ -1,8 +1,7 @@
-# Ignore the Genis folder
-Genis/
-
-# Ignore the Genis folder and all its contents
+# Ignore these folders
 TEST_SUITE/
-
-# Ignore the runchecker.bash file
+Genius/
+# Ignore these files
 runchecker.bash
+.gitignore
+
