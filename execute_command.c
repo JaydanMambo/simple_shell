@@ -81,7 +81,7 @@ void execute_in_current_directory(char **command, char **av)
 	{
 		waitpid(child_pid, &status, 0);
 		set_child_exit_status(WIFEXITED(status) ? WEXITSTATUS(status) : 1);
-		printf("The exit status is: %d\n", get_child_exit_status());
+		/*printf("The exit status is: %d\n", get_child_exit_status());*/
 	}
 }
 
@@ -157,7 +157,7 @@ void execute_in_directory(char *command_path, char **command, char **av)
 
 		waitpid(child_pid, &status, 0);
 		set_last_exit_status(WIFEXITED(status) ? WEXITSTATUS(status) : 1);
-		printf("The exit status is: %d\n", get_last_exit_status());
+		/*printf("The exit status is: %d\n", get_last_exit_status());*/
 	}
 }
 

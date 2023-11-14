@@ -28,6 +28,8 @@ char **parse_input(char *input)
 	token = custom_strtok(input, "\t\n ");
 	while (token != NULL)
 	{
+		if (token[0] == '#')
+			break;
 		if (strcmp(token, "$?") == 0)
 		{
 			char exit_status_str[2];
@@ -54,7 +56,7 @@ char **parse_input(char *input)
 		token = custom_strtok(NULL, "\t\n ");
 		i++;
 	}
-	free(token);
+	/* Free token here?*/
 	if (i == 0)
 	{
 		free(command);

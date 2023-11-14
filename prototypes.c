@@ -55,8 +55,7 @@ void set_last_process_id(pid_t pid);
 void set_last_exit_status(int status);
 int get_child_exit_status(void);
 void set_child_exit_status(int status);
-
-
+void handle_file_input(const char *filename, char **av);
 
 
 /* Custom string tokenizer */
