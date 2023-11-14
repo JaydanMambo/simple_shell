@@ -1,7 +1,0 @@
-# Ignore these folders
-TEST_SUITE/
-Genius/
-# Ignore these files
-runchecker.bash
-.gitignore
-
