@@ -67,9 +67,12 @@ int main(int ac, char **av, char **environ)
 			trim_input(input);
 			if (contains_logical_operator(input, "&&"))
 			{
-				printf("Input contains multiple commands separated by '&'. Executing commands concurrently...\n");
 				execute_command_with_and(input, av);
-			} 
+			}
+			else if (contains_logical_operator(input, "||")) 
+			{
+				execute_command_with_or(input, av);
+			}
 			else if (strchr(input, ';') != NULL)
 			{
 				input_copy = strdup(input);
@@ -99,6 +102,8 @@ int main(int ac, char **av, char **environ)
 					custom_env(ac, av, environ);
 				else if (IS_SETENV_COMMAND(command))
 					handle_setenv_command(command);
+				else if (IS_UNSETENV_COMMAND(command))
+					unsetenv_builtin(command);
 				else if(strcmp(command[0], "cd") == 0)
 					cd_command(command, av);
 				else if (strncmp(input, "alias", 5) == 0)

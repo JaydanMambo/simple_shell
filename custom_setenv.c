@@ -2,85 +2,69 @@
 #include <stdlib.h>
 #include <string.h>
 
-/**
- * _setenv - Changes or adds an environment variable.
- * @name: Name of the environment variable.
- * @value: Value to set for the environment variable.
- * @overwrite: Flag indicating whether to overwrite ifvariable already exists.
- *
- * Return: 0 on success, -1 on failure.
- */
-int _setenv(const char *name, const char *value, int overwrite)
-{
-	size_t len;
-	char *env_var;
-	char *existing_value;
-
-	if (!name || name[0] == '\0' || strchr(name, '=') || !value)
-		return (-1); /* Invalid input */
-
-	/* Check if the variable already exists */
-	existing_value = getenv(name);
-
-	if (existing_value)
-	{
-		if (!overwrite)
-			return (0); /* Variable exists, and overwrite is not allowed */
-	}
-
-	/* Concatenate name and value to form the assignment string */
-	len = strlen(name) + strlen(value) + 2; /*+2 for '=' and null terminator*/
-	env_var = malloc(len);
-	if (!env_var)
-		return (-1); /* Memory allocation failure */
-
-	snprintf(env_var, len, "%s=%s", name, value);
-
-	/* Putenv the new environment variable */
-	if (putenv(env_var) != 0)
-	{
-		free(env_var);
-		return (-1); /* Error setting environment variable */
-	}
-
-	return (0); /* Success */
-}
-
-/**
- * custom_setenv - Set or update an environment variable.
- * @name: Name of the environment variable.
- * @value: Value to set for the environment variable.
- * @environ: The environment variables.
- *
- * Return: 0 on success, -1 on failure.
- */
-int custom_setenv(const char *name, const char *value)
-{
-	int overwrite = 1; /* Allow overwriting existing variable */
-
-	if (_setenv(name, value, overwrite) != 0)
-	{
-		perror("Error setting environment variable");
-		return (-1);
-	}
-
-	return (0);
-}
 
 /**
  * handle_setenv_command - Handle the setenv command.
  * @command: The command tokens.
- * @environ: The environment variables.
+ *
  *
  * Return: 0 on success, -1 on failure.
  */
-int handle_setenv_command(char **command)
-{
-	if (command[1] == NULL || command[2] == NULL || command[3] != NULL)
-	{
-		fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
-		return (-1);
-	}
+void handle_setenv_command(char **command) {
+    
+    char *variable = command[1];
+    char *value = command[2];
+	/*char *updated_value;*/
 
-	return (custom_setenv(command[1], command[2]));
+	if (command[1] == NULL || command[2] == NULL) {
+        fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
+        return;
+    }
+
+    
+
+    
+    if (setenv(variable, value, 1) == -1) {
+        perror("setenv");
+        return;
+    }
+
+    
+    /*updated_value = getenv(variable);*/
+    /* printf("%s=%s\n", variable, updated_value); */
+}
+
+/**
+ * unsetenv_builtin - Unset environment variable
+ * @command: Name of the environment variable to unset
+ * Return: 0 on success, -1 on failure
+ */
+
+extern char **environ;
+
+void unsetenv_builtin(char **command) {
+    
+	char **env_ptr = environ;
+
+	if (command[1] == NULL || command[2] != NULL) {
+        fprintf(stderr, "Usage: unsetenv VARIABLE\n");
+        return;
+    }
+
+    /* Check if the variable exists before attempting to unset it */
+    
+    while (*env_ptr != NULL) {
+        if (strncmp(*env_ptr, command[1], strlen(command[1])) == 0 &&
+            (*env_ptr)[strlen(command[1])] == '=') {
+            /* Variable found, unset it */
+            if (unsetenv(command[1]) != 0) {
+                fprintf(stderr, "Error: Unable to unset environment variable %s\n", command[1]);
+            }
+            return;
+        }
+        env_ptr++;
+    }
+
+    /* Variable not found */
+    fprintf(stderr, "Error: Environment variable %s not found\n", command[1]);
 }

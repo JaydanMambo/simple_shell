@@ -15,7 +15,9 @@
 	custom_strcmp(command[0], "env", custom_strlen("env")) == 0)
 #define IS_SETENV_COMMAND(command) (command != NULL && \
 	custom_strcmp(command[0], "setenv", custom_strlen("setenv")) == 0)
-/* #define HAS_AND_OPERATOR(input) (contains_logical_operator((const char **)input, "&&")) */
+#define IS_UNSETENV_COMMAND(command) (command != NULL && \
+	custom_strcmp(command[0], "unsetenv", custom_strlen("setenv")) == 0)
+
 
 
 /* Custom string functions */
@@ -40,12 +42,15 @@ void shell_exit(int exit_status);
 void handle_exit_command(char **command);
 void custom_env(int ac, char **av, char **env);
 int custom_setenv(const char *name, const char *value);
-int handle_setenv_command(char **command);
+void handle_setenv_command(char **command);
+void unsetenv_builtin(char **command);
 void execute_command_with_and(char *input, char **av);
 
 bool contains_logical_operator(const char *input, const char *operator);
 char **parse_commands_separated_by_semicolon(char *input);
 char **parse_input_with_and(char *input);
+char **parse_input_with_or(char *input);
+void execute_command_with_or(char *input, char **av);
 
 void cd_command(char **command, char **av);
 char *custom_getcwd(char *buffer, size_t size);
