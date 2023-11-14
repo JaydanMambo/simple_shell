@@ -1,0 +1,6 @@
+# Ignore the Genis folder
+Genis/
+TEST_SUITE/
+
+# Ignore the runchecker.bash file
+runchecker.bash
