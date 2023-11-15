@@ -25,7 +25,7 @@ char **parse_input(char *input)
 		exit(EXIT_FAILURE);
 	}
 
-	token = custom_strtok(input, "\t\n ");
+	token = custom_strtok(input, " ");
 	while (token != NULL)
 	{
 		if (token[0] == '#')
@@ -53,10 +53,10 @@ char **parse_input(char *input)
 		{
 			command[i] = token;
 		}
-		token = custom_strtok(NULL, "\t\n ");
+		token = custom_strtok(NULL, " ");
 		i++;
 	}
-	/* Free token here?*/
+	free(token);
 	if (i == 0)
 	{
 		free(command);
