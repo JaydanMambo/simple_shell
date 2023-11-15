@@ -170,5 +170,5 @@ void execute_in_directory(char *command_path, char **command, char **av)
 */
 void print_command_not_found(char *command, char *program_name)
 {
-	fprintf(stderr, "%s: 1: %s: not found\n", program_name,  command);
+	fprintf(stderr, "%s: 1: %s: No such file or directory\n", program_name,  command);
 }

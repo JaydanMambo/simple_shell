@@ -80,6 +80,7 @@ char *custom_getcwd(char *buffer, size_t size)
 		if (buffer == NULL)
 		{
 			perror("cd");
+			free(buffer);
 			exit(EXIT_FAILURE);
 		}
 	}

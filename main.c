@@ -13,7 +13,7 @@ void display_prompt(bool interactive_mode)
 {
 	if (interactive_mode)
 	{
-		write(STDOUT_FILENO, "($) ", 4);
+		write(STDOUT_FILENO, "#cisfun$ ", 9);
 	}
 }
 

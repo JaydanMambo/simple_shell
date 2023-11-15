@@ -22,10 +22,6 @@ bool contains_logical_operator(const char *input, const char *operator)
     return (operator_pos != NULL);
 }
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "prototypes.c"
-
 /**
  * parse_input_with_and - Parse input containing "&&" operator
  * @input: The input string
@@ -66,8 +62,6 @@ char **parse_input_with_and(char *input)
     return (commands);
 }
 
-
-
 /**
  * execute_command_with_and - Execute a command with && operator
  * @input: The input string
@@ -78,7 +72,7 @@ void execute_command_with_and(char *input, char **av)
     char *input_copy = NULL;
 	char **command;
 	char **commands;
-	int i, status;
+	int i, status = 0;
     input_copy = strdup(input);
     
 	commands = parse_input_with_and(input_copy);
