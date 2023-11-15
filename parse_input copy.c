@@ -57,6 +57,7 @@ char **parse_input(char *input)
 		i++;
 	}
 	/* Free token here?*/
+	free(token);
 	if (i == 0)
 	{
 		free(command);
