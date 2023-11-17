@@ -32,7 +32,7 @@ char *custom_strchr(const char *s, int c);
 char **parse_input(char *input);
 void trim_input(char *str);
 void execute_command(char **command, char **av);
-ssize_t custom_getline(char **lineptr, size_t *n, int fd);
+
 void execute_in_current_directory(char **command, char **av);
 void search_and_execute(char **command, char **av);
 void execute_in_directory(char *command_path, char **command, char **av);
@@ -61,7 +61,7 @@ void set_last_exit_status(int status);
 int get_child_exit_status(void);
 void set_child_exit_status(int status);
 void handle_file_input(const char *filename, char **av);
-
+void free_commands(char **commands);
 
 /* Custom string tokenizer */
 char *custom_strtok(char *str, const char *delim);

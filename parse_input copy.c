@@ -48,6 +48,7 @@ char **parse_input(char *input)
 		{
 			char *path = custom_getenv("PATH");
 			command[i] = strdup(path);
+			free(path);
 		}
 		else
 		{
@@ -57,7 +58,6 @@ char **parse_input(char *input)
 		i++;
 	}
 	/* Free token here?*/
-	free(token);
 	if (i == 0)
 	{
 		free(command);
