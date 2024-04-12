@@ -1,125 +1,134 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <string.h>
-#include "prototypes.c"
+#include "shell.h"
 
-#define MAX_INPUT_SIZE 1024
+void sig_handler(int sig);
+int execute(char **args, char **front);
 
 /**
- * display_prompt - Display a prompt for input in interactive mode
- * @interactive_mode: Interactive mode flag
-*/
-void display_prompt(bool interactive_mode)
+ * sig_handler - Prints a new prompt upon a signal.
+ * @sig: The signal.
+ */
+void sig_handler(int sig)
 {
-    if (interactive_mode)
-    {
-        write(STDOUT_FILENO, "($) ", 4);
-    }
+	char *new_prompt = "\n$ ";
+
+	(void)sig;
+	signal(SIGINT, sig_handler);
+	write(STDIN_FILENO, new_prompt, 3);
 }
 
 /**
- * main - Simple shell program
- * @ac: The argument count
- * @av: The argument vector
- * @environ: The environment variables
- * Return: Always 0 on success
-*/
-int main(int ac, char **av, char **environ)
+ * execute - Executes a command in a child process.
+ * @args: An array of arguments.
+ * @front: A double pointer to the beginning of args.
+ *
+ * Return: If an error occurs - a corresponding error code.
+ *         O/w - The exit value of the last executed command.
+ */
+int execute(char **args, char **front)
 {
-    char input[MAX_INPUT_SIZE];
-    char *input_copy = NULL;
-    char **command;
-    char **commands;
-    int i;
-    bool interactive_mode = isatty(STDIN_FILENO);
+	pid_t child_pid;
+	int status, flag = 0, ret = 0;
+	char *command = args[0];
 
-    if (ac == 2)
-    {
-        handle_file_input(av[1], av);
-        return (0);
-    }
-    else if (ac > 2)
-    {
-        fprintf(stderr, "Usage: %s [filename]\n", av[0]);
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        display_prompt(interactive_mode);
-        while (fgets(input, sizeof(input), stdin) != NULL)
-        {
-            if (feof(stdin))
-            {
-                if (interactive_mode)
-                {
-                    write(STDOUT_FILENO, "\n", 1);
-                }
-                break;
-            }
-            if (input[0] == '\n')
-            {
-                display_prompt(interactive_mode);
-                continue;
-            }
-            trim_input(input);
-            if (contains_logical_operator(input, "&&"))
-            {
-                execute_command_with_and(input, av);
-            }
-            else if (contains_logical_operator(input, "||"))
-            {
-                execute_command_with_or(input, av);
-            }
-            else if (strchr(input, ';') != NULL)
-            {
-                input_copy = strdup(input);
-                commands = parse_commands_separated_by_semicolon(input_copy);
+	if (command[0] != '/' && command[0] != '.')
+	{
+		flag = 1;
+		command = get_location(command);
+	}
 
-                i = 0;
-                while (commands[i] != NULL)
-                {
-                    command = parse_input(commands[i]);
-                    execute_command(command, av);
-                    free(command);
-                    i++;
-                }
-                free(commands);
-                free(input_copy);
-            }
-            else
-            {
-                command = parse_input(input);
+	if (!command || (access(command, F_OK) == -1))
+	{
+		if (errno == EACCES)
+			ret = (create_error(args, 126));
+		else
+			ret = (create_error(args, 127));
+	}
+	else
+	{
+		child_pid = fork();
+		if (child_pid == -1)
+		{
+			if (flag)
+				free(command);
+			perror("Error child:");
+			return (1);
+		}
+		if (child_pid == 0)
+		{
+			execve(command, args, environ);
+			if (errno == EACCES)
+				ret = (create_error(args, 126));
+			free_env();
+			free_args(args, front);
+			free_alias_list(aliases);
+			_exit(ret);
+		}
+		else
+		{
+			wait(&status);
+			ret = WEXITSTATUS(status);
+		}
+	}
+	if (flag)
+		free(command);
+	return (ret);
+}
 
-                if (command != NULL)
-                {
-                    if (IS_EXIT_COMMAND(command))
-                        handle_exit_command(command);
-                    else if (IS_ENV_COMMAND(command, environ))
-                        custom_env(ac, av, environ);
-                    else if (IS_SETENV_COMMAND(command))
-                        handle_setenv_command(command);
-                    else if (IS_UNSETENV_COMMAND(command))
-                        unsetenv_builtin(command);
-                    else if (strcmp(command[0], "cd") == 0)
-                        cd_command(command, av);
-                    else if (strncmp(input, "alias", 5) == 0)
-                    {
-                        alias_command(command, av);
-                    }
-                    else
-                    {
-                        execute_command(command, av);
-						free(command);
-                    }
-                    
-                }
-            }
+/**
+ * main - Runs a simple UNIX command interpreter.
+ * @argc: The number of arguments supplied to the program.
+ * @argv: An array of pointers to the arguments.
+ *
+ * Return: The return value of the last executed command.
+ */
+int main(int argc, char *argv[])
+{
+	int ret = 0, retn;
+	int *exe_ret = &retn;
+	char *prompt = "$ ", *new_line = "\n";
 
-            display_prompt(interactive_mode);
-        }
-    }
+	name = argv[0];
+	hist = 1;
+	aliases = NULL;
+	signal(SIGINT, sig_handler);
 
-    return (0);
+	*exe_ret = 0;
+	environ = _copyenv();
+	if (!environ)
+		exit(-100);
+
+	if (argc != 1)
+	{
+		ret = proc_file_commands(argv[1], exe_ret);
+		free_env();
+		free_alias_list(aliases);
+		return (*exe_ret);
+	}
+
+	if (!isatty(STDIN_FILENO))
+	{
+		while (ret != END_OF_FILE && ret != EXIT)
+			ret = handle_args(exe_ret);
+		free_env();
+		free_alias_list(aliases);
+		return (*exe_ret);
+	}
+
+	while (1)
+	{
+		write(STDOUT_FILENO, prompt, 2);
+		ret = handle_args(exe_ret);
+		if (ret == END_OF_FILE || ret == EXIT)
+		{
+			if (ret == END_OF_FILE)
+				write(STDOUT_FILENO, new_line, 1);
+			free_env();
+			free_alias_list(aliases);
+			exit(*exe_ret);
+		}
+	}
+
+	free_env();
+	free_alias_list(aliases);
+	return (*exe_ret);
 }
